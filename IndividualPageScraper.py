@@ -44,4 +44,10 @@ def scrapePage(url: str, keepSymbols: bool = False):
     # print(finalAnswers)
     return finalAnswers
 
-print(scrapePage("https://openstax.org/books/biology-ap-courses/pages/2-critical-thinking-questions"))
+questionAnswerPairs = scrapePage("https://openstax.org/books/biology-ap-courses/pages/2-review-questions")
+
+for key in questionAnswerPairs.keys():
+    print(key)
+    print(questionAnswerPairs[key])
+    # if not questionAnswerPairs[key]:
+    #     print("\n", key)
