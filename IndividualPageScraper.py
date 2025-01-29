@@ -1,4 +1,4 @@
-def scrapePage(url: str, keepSymbols: bool = False):
+def scrapePage(url: str, keepSymbols = False):
     import requests
     import bs4
 
@@ -20,17 +20,24 @@ def scrapePage(url: str, keepSymbols: bool = False):
         # print(type(box))
         answers = box.find_all('div', attrs={'data-type':'answer-content'})
 
-        # print(answers)
-
         # print("\n\n", box, "\n\n")
 
         for answer in answers:
-            # Check if the answer has an ionic charge
+            # Check if the answers have any subscripts
+            hasJunk = bool(answer.find('msub')) or bool(answer.find('sub'))
+            # Check if the answers have any junk
             for junk in junkAttributes:
-                hasJunk = bool(answer.find(junk[0], attrs=junk[1])) or bool(answer.find('msub'))
+                if (hasJunk):
+                    break
+                hasJunk = bool(answer.find(junk[0], attrs=junk[1]))
+            if (hasJunk):
+                break
+
+        # print(hasJunk)
             
         # If keepSymbols is False and the answer choices contain ions, skip the question-answer pair
-        if (not keepSymbols and hasJunk):
+        if ((not keepSymbols) and hasJunk):
+            print("\n\nSKIPPING THE FOLLOWING ANSWER:\n", "\n\n")
             continue
 
         # Getting the questionbox text
@@ -47,6 +54,7 @@ def scrapePage(url: str, keepSymbols: bool = False):
         question = answerChoiceList.pop(0)
 
         finalAnswers[question] = answerChoiceList
+        hasJunk = False
         # print(question)
         # print(answerChoiceList)
     # print(finalAnswers)
