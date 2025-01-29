@@ -4,6 +4,9 @@ def scrapePage(url: str, keepSymbols: bool = False):
 
     finalAnswers = {}
 
+    # Tags with attributes that we want to filter out
+    junkAttributes = [['mrow', {'class':'MJX-TeXAtom-ORD'}, 'Ionic Charges'], ['', {'':''}]]
+
     soup = bs4.BeautifulSoup(requests.get(url).text, features="lxml")
 
     # questionStems = soup.find_all('div', attrs={'data-type':'question-stem'})
@@ -17,15 +20,17 @@ def scrapePage(url: str, keepSymbols: bool = False):
         # print(type(box))
         answers = box.find_all('div', attrs={'data-type':'answer-content'})
 
+        # print(answers)
+
         # print("\n\n", box, "\n\n")
 
         for answer in answers:
             # Check if the answer has an ionic charge
-            hasIon = bool(answer.find('mrow', attrs={'class':'MJX-TeXAtom-ORD'}))
-
+            for junk in junkAttributes:
+                hasJunk = bool(answer.find(junk[0], attrs=junk[1])) or bool(answer.find('msub'))
             
         # If keepSymbols is False and the answer choices contain ions, skip the question-answer pair
-        if (not keepSymbols and hasIon):
+        if (not keepSymbols and hasJunk):
             continue
 
         # Getting the questionbox text
