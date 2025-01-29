@@ -22,6 +22,7 @@ def scrapePage(url: str, keepSymbols: bool = False):
         for answer in answers:
             # Check if the answer has an ionic charge
             hasIon = bool(answer.find('mrow', attrs={'class':'MJX-TeXAtom-ORD'}))
+
             
         # If keepSymbols is False and the answer choices contain ions, skip the question-answer pair
         if (not keepSymbols and hasIon):
@@ -32,11 +33,13 @@ def scrapePage(url: str, keepSymbols: bool = False):
         
         # Getting answer choices and question from question box data
         answerChoiceList = questionBoxData.split("\n\n\n")
-        question = answerChoiceList.pop(0)
 
         # Filters all empty items and newlines in the list out
-        answerChoiceList = [x for x in answerChoiceList if x]
         answerChoiceList = [item.replace("\n", "") for item in answerChoiceList]
+        answerChoiceList = [x for x in answerChoiceList if x]
+
+        # removing question from answer choices
+        question = answerChoiceList.pop(0)
 
         finalAnswers[question] = answerChoiceList
         # print(question)
