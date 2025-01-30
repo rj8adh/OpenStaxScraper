@@ -1,13 +1,14 @@
-def scrapePage(url: str, keepSymbols = False):
+def scrapeWithNewlines(url: str, keepSymbols = False):
     import requests
     import bs4
 
     finalAnswers = {}
 
     # Tags with attributes that we want to filter out
-    junkAttributes = [['mrow', {'class':'MJX-TeXAtom-ORD'}, 'Ionic Charges'], ['', {'':''}]]
+    junkAttributes = [['mrow', {'class':'MJX-TeXAtom-ORD'}, 'Ionic Charges']]
 
-    soup = bs4.BeautifulSoup(requests.get(url).text, features="lxml")
+    pageHTML = requests.get(url)
+    soup = bs4.BeautifulSoup(pageHTML.text, features="lxml")
 
     # questionStems = soup.find_all('div', attrs={'data-type':'question-stem'})
     questionBoxes = soup.find_all('div', attrs={'class':'os-problem-container'})
@@ -15,6 +16,7 @@ def scrapePage(url: str, keepSymbols = False):
     # print(type(questionBoxes))
 
     for box in questionBoxes:
+        hasJunk = False
         # Feeding the box html to bs4 so we can parse it(the encoding and decoding is to turn wonky html text to normal text)
         boxSoup = bs4.BeautifulSoup(box.text.encode('latin1').decode('utf-8'), features="lxml")
         # print(type(box))
@@ -37,20 +39,21 @@ def scrapePage(url: str, keepSymbols = False):
             
         # If keepSymbols is False and the answer choices contain ions, skip the question-answer pair
         if ((not keepSymbols) and hasJunk):
-            print("\n\nSKIPPING THE FOLLOWING ANSWER:\n", "\n\n")
+            # print("\n\nSKIPPING THE FOLLOWING ANSWER:\n", "\n\n")
             continue
 
         # Getting the questionbox text
         questionBoxData = boxSoup.find('p').getText()
+        print(questionBoxData)
         
         # Getting answer choices and question from question box data
-        answerChoiceList = questionBoxData.split("\n\n\n")
+        answerChoiceList = questionBoxData.split("\n")
 
-        # Filters all empty items and newlines in the list out
-        answerChoiceList = [item.replace("\n", "") for item in answerChoiceList]
+        # # Filters all empty items and newlines in the list out
+        # answerChoiceList = [item.replace("\n", "") for item in answerChoiceList]
         answerChoiceList = [x for x in answerChoiceList if x]
 
-        # removing question from answer choices
+        # # removing question from answer choices
         question = answerChoiceList.pop(0)
 
         finalAnswers[question] = answerChoiceList
@@ -60,7 +63,7 @@ def scrapePage(url: str, keepSymbols = False):
     # print(finalAnswers)
     return finalAnswers
 
-questionAnswerPairs = scrapePage("https://openstax.org/books/biology-ap-courses/pages/2-review-questions")
+questionAnswerPairs = scrapeWithNewlines("https://openstax.org/books/biology-2e/pages/19-review-questions")
 
 for key in questionAnswerPairs.keys():
     print(key)

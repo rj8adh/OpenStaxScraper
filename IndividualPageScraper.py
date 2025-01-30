@@ -5,9 +5,9 @@ def scrapePage(url: str, keepSymbols = False):
     finalAnswers = {}
 
     # Tags with attributes that we want to filter out
-    junkAttributes = [['mrow', {'class':'MJX-TeXAtom-ORD'}, 'Ionic Charges'], ['', {'':''}]]
+    junkAttributes = [['mrow', {'class':'MJX-TeXAtom-ORD'}, 'Ionic Charges'], ['span', {'aria-label':'\\text'}, 'Different Format Ionic Charges'], ['msup', {'':''}, 'Superscripts'], ['msub', {'':''}, 'Subscripts'], ['sub', {'':''}, 'Differently Formatted Subscripts']]
 
-    soup = bs4.BeautifulSoup(requests.get(url).text, features="lxml")
+    soup = bs4.BeautifulSoup(requests.get(url).text.encode('latin1').decode('utf-8'), features="lxml")
 
     # questionStems = soup.find_all('div', attrs={'data-type':'question-stem'})
     questionBoxes = soup.find_all('div', attrs={'class':'os-problem-container'})
@@ -15,49 +15,46 @@ def scrapePage(url: str, keepSymbols = False):
     # print(type(questionBoxes))
 
     for box in questionBoxes:
-        # Feeding the box html to bs4 so we can parse it(the encoding and decoding is to turn wonky html text to normal text)
-        boxSoup = bs4.BeautifulSoup(box.text.encode('latin1').decode('utf-8'), features="lxml")
-        # print(type(box))
-        answers = box.find_all('div', attrs={'data-type':'answer-content'})
 
+        answerText = []
+
+        if (box.find('img')):
+            continue
+
+        try:
+            answers = box.find_all('div', attrs={'data-type':'answer-content'})
+            question = box.find('div', attrs={'data-type':'question-stem'}).getText()
+        except:
+            continue
         # print("\n\n", box, "\n\n")
 
         for answer in answers:
-            # Check if the answers have any subscripts
-            hasJunk = bool(answer.find('msub')) or bool(answer.find('sub'))
+            hasJunk = False
             # Check if the answers have any junk
-            for junk in junkAttributes:
+            if not keepSymbols:
+
+                # Check if the answers have any subscripts
+                # hasJunk = bool(answer.find('msup')) or bool(answer.find('sub'))
+
+                for junk in junkAttributes:
+                    if (hasJunk):
+                        # print(answer.getText())
+                        break
+                    hasJunk = bool(answer.find(junk[0], attrs=junk[1]))
+
                 if (hasJunk):
                     break
-                hasJunk = bool(answer.find(junk[0], attrs=junk[1]))
-            if (hasJunk):
-                break
+            answerText.append(answer.getText().replace("\n", ""))
 
         # print(hasJunk)
             
         # If keepSymbols is False and the answer choices contain ions, skip the question-answer pair
         if ((not keepSymbols) and hasJunk):
-            print("\n\nSKIPPING THE FOLLOWING ANSWER:\n", "\n\n")
+            print("\n\nSKIPPED AN ANSWER:\n", "\n\n")
             continue
 
-        # Getting the questionbox text
-        questionBoxData = boxSoup.find('p').getText()
+        finalAnswers[question.replace("\n", "")] = answerText
         
-        # Getting answer choices and question from question box data
-        answerChoiceList = questionBoxData.split("\n\n\n")
-
-        # Filters all empty items and newlines in the list out
-        answerChoiceList = [item.replace("\n", "") for item in answerChoiceList]
-        answerChoiceList = [x for x in answerChoiceList if x]
-
-        # removing question from answer choices
-        question = answerChoiceList.pop(0)
-
-        finalAnswers[question] = answerChoiceList
-        hasJunk = False
-        # print(question)
-        # print(answerChoiceList)
-    # print(finalAnswers)
     return finalAnswers
 
 questionAnswerPairs = scrapePage("https://openstax.org/books/biology-ap-courses/pages/2-review-questions")
@@ -67,3 +64,4 @@ for key in questionAnswerPairs.keys():
     print(questionAnswerPairs[key])
     # if not questionAnswerPairs[key]:
     #     print("\n", key)
+print(len(questionAnswerPairs))
