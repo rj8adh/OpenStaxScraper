@@ -6,7 +6,7 @@ textbookQuestPages = scrapeUnits(['Review Questions', 'Critical Thinking Questio
 
 allQuestions = []
 
-for i in range(5):
+for i in range(len(textbookQuestPages)):
     print(textbookQuestPages[i])
     allQuestions.append(scrapePage(textbookQuestPages[i]))
 
