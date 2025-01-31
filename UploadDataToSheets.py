@@ -2,6 +2,7 @@ import json
 import os
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
+import time
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
@@ -23,20 +24,53 @@ sheet_id = '16M3Pv_2M1YG90w0b1jojjzSDFiWP4gyqBPUsPJcIAWc'
 #     print(row)
 
 values = []
+pastQuestionUnit = 1
 
 with open("questionsAndAnswers.json") as f:
     QAdata = json.load(f)
 
-for questionPage in QAdata:
-    for question in questionPage:
-        answerString = "("
-        pageLen = len(questionPage[question])
-        for i in range(pageLen - 2):
-            answerString += questionPage[question][i] + "), ("
-        answerString += questionPage[question][pageLen-2] + "), and (" + questionPage[question][pageLen-1] + ")"
-        values.append([question, answerString])
+i = 0
 
-body = {'values':values}
+while i < len(QAdata):
+    if QAdata[i][0] == pastQuestionUnit:
+        print(QAdata[i][1])
+        for question in QAdata[i][1]:
 
-sheet_write = sheet.values().update(spreadsheetId=sheet_id, range='A1', valueInputOption='RAW', body=body).execute()
+            if not question:
+                i+=1
+                break
+
+            answerString = "("
+            pageLen = len(QAdata[i][1][question])
+
+            # print(QAdata[i][1])
+
+            for y in range(pageLen - 2):
+                answerString += QAdata[i][1][question][y] + "), ("
+
+            answerString += QAdata[i][1][question][pageLen-2] + "), and (" + QAdata[i][1][question][pageLen-1] + ")"
+            values.append([question, answerString])
+        i+=1
+
+    else:
+        body = {'values':values}
+        print(f'{values}\n\nUnit{QAdata[i-1][0]}!A1\n')
+        pastQuestionUnit = QAdata[i][0]
+        # sheet_write = sheet.values().update(spreadsheetId=sheet_id, range=f'Unit{QAdata[i][0]}!A1', valueInputOption='RAW', body=body).execute()
+        
+        sheet_write = sheet.values().batchUpdate(
+        spreadsheetId=sheet_id,
+        body={
+            "valueInputOption": "RAW",
+            "data": [
+                {
+                    "range": f'Unit{QAdata[i-1][0]}!A1',
+                    "values": values  # Replace with your actual data
+                }
+            ]
+        }
+).execute()
+
+        # List the mass number and atomic number of carbon-12 and carbon-13, respectively.
+
 f.close()

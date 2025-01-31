@@ -3,14 +3,22 @@ from IndividualPageScraper import scrapePage
 from IndPageScrapNewline import scrapeWithNewlines
 import json
 
-textbookQuestPages = scrapeUnits(['Review Questions', 'Critical Thinking Questions', 'Test Prep for APÂ® Courses'], 'https://openstax.org/books/biology-ap-courses/pages/2-review-questions', 'https://openstax.org/books/biology-ap-courses/pages/')
+
+questionPages = ['Review Questions', 'Critical Thinking Questions', 'Test Prep for APÂ® Courses']
+textbookQuestPages = scrapeUnits(questionPages, 'https://openstax.org/books/biology-ap-courses/pages/2-review-questions', 'https://openstax.org/books/biology-ap-courses/pages/')
 
 allQuestions = []
 
-for i in range(len(textbookQuestPages)):
+for i in range(5):
+    
+    # Getting the unit
+    unit = (i // len(questionPages)) + 1
+
     print(textbookQuestPages[i])
     # If scrapePage doesn't work, try using scrapeWithNewlines, some textbooks are wonky
-    allQuestions.append(scrapePage(textbookQuestPages[i]))
+    allQuestions.append([unit, scrapePage(textbookQuestPages[i])])
 
 with open("questionsAndAnswers.json", "w") as f:
+    # this line of code is really sloppy, ToDo fix when free--Get uploadDataToSheets script to work for last unit instead of adding an extra unit
+    allQuestions.append([9, {'':''}])
     json.dump(allQuestions, f)
