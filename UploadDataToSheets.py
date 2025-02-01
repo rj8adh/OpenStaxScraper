@@ -26,7 +26,7 @@ for i, entry in enumerate(QAdata):
     questions_data = entry[1]
 
     if unit_number != pastQuestionUnit:
-        # **Write the previous unit's data before switching units**
+        # Write the previous unit's data before switching units
         if values:
             print(f'Writing to sheet: {values}\nRange: Unit{pastQuestionUnit}!A1\n')
             sheet.values().batchUpdate(
@@ -42,9 +42,9 @@ for i, entry in enumerate(QAdata):
                 }
             ).execute()
         
-        # **Now update to the new unit and reset `values`**
+        # Now update to the new unit and reset values
         values = []
-        pastQuestionUnit = unit_number  # <-- Move this after writing
+        pastQuestionUnit = unit_number
 
     # Process each question
     for question, answers in questions_data.items():
