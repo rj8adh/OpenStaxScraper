@@ -1,3 +1,5 @@
+# TODO Test If IndPageNewline Scraper Is Still Compatible With New OpenStaxScraper script
+
 def scrapeWithNewlines(url: str, keepSymbols = False):
     import requests
     import bs4
