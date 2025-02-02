@@ -12,9 +12,26 @@ service = build('sheets', 'v4', credentials=credentials)
 sheet = service.spreadsheets()
 
 # Google Sheet ID
-sheet_id = '16M3Pv_2M1YG90w0b1jojjzSDFiWP4gyqBPUsPJcIAWc'
+sheet_id = '1BMeaEsSJzuFg3qSRVgB6QHpTtBQvdrryn6Cvt3pT4ZA'
 
-# Load JSON data
+# Create a list of sheets to create(1 per unit and an extra to catch any IndexOutOfBounds issues)
+requests = []
+for i in range(1, 10):
+    requests.append({
+        "addSheet": {
+            "properties": {
+                "title": f"Unit{i}"
+            }
+        }
+    })
+
+# Send request to create the sheets
+sheet.batchUpdate(
+    spreadsheetId=sheet_id,
+    body={"requests": requests}
+).execute()
+
+# Load json QA data
 with open("questionsAndAnswers.json") as f:
     QAdata = json.load(f)
 

@@ -3,7 +3,6 @@ from IndividualPageScraper import scrapePage
 from IndPageScrapNewline import scrapeWithNewlines
 import json
 
-
 questionPages = ['Review Questions', 'Critical Thinking Questions', 'Test Prep for APÂ®\xa0Courses']
 textbookQuestPages, unitNumbers = scrapeUnits(questionPages, 'https://openstax.org/books/biology-ap-courses/pages/2-review-questions', 'https://openstax.org/books/biology-ap-courses/pages/')
 
