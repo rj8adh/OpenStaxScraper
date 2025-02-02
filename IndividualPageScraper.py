@@ -31,9 +31,8 @@ def scrapePage(url: str, keepSymbols = False):
         for answer in answers:
             # Check if the answer choices have a list formatting
             answerChoice = ""
-            print(answer.prettify())
             answerList = answer.find_all('li')
-            print(answerList, "\n")
+            
             # Seperating each item in the list with a comma
             if answerList:
                 for item in answerList:
