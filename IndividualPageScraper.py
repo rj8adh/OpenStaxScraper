@@ -29,6 +29,18 @@ def scrapePage(url: str, keepSymbols = False):
         # print("\n\n", box, "\n\n")
 
         for answer in answers:
+            # Check if the answer choices have a list formatting
+            answerChoice = ""
+            print(answer.prettify())
+            answerList = answer.find_all('li')
+            print(answerList, "\n")
+            # Seperating each item in the list with a comma
+            if answerList:
+                for item in answerList:
+                    answerChoice += item.getText() + ", "
+            # Removing the comma at the end
+            answerChoice = answerChoice.strip(", ")
+
             hasJunk = False
             # Check if the answers have any junk
             if not keepSymbols:
@@ -42,9 +54,13 @@ def scrapePage(url: str, keepSymbols = False):
                         break
                     hasJunk = bool(answer.find(junk[0], attrs=junk[1]))
 
-                if (hasJunk):
+                if hasJunk:
                     break
-            answerText.append(answer.getText().replace("\n", ""))
+
+                # Make sure the answer isn't a list
+                if not answerList:
+                    answerChoice = answer.getText().replace("\n", "")
+            answerText.append(answerChoice)
 
         # print(hasJunk)
             
@@ -57,7 +73,7 @@ def scrapePage(url: str, keepSymbols = False):
         
     return finalAnswers
 
-questionAnswerPairs = scrapePage("https://openstax.org/books/biology-ap-courses/pages/2-review-questions")
+questionAnswerPairs = scrapePage("https://openstax.org/books/biology-ap-courses/pages/10-test-prep-for-ap-r-courses")
 
 for key in questionAnswerPairs.keys():
     print(key)
