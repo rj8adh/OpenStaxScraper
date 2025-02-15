@@ -18,6 +18,7 @@ def scrapePage(url: str, keepSymbols = False):
 
         answerText = []
 
+        # Ignore questions with images
         if (box.find('img')):
             continue
 
@@ -72,11 +73,13 @@ def scrapePage(url: str, keepSymbols = False):
         
     return finalAnswers
 
-questionAnswerPairs = scrapePage("https://openstax.org/books/biology-ap-courses/pages/10-test-prep-for-ap-r-courses")
+# Following Code Is For Testing This Function
 
-for key in questionAnswerPairs.keys():
-    print(key)
-    print(questionAnswerPairs[key])
-    # if not questionAnswerPairs[key]:
-    #     print("\n", key)
-print(len(questionAnswerPairs))
+# questionAnswerPairs = scrapePage("https://openstax.org/books/biology-ap-courses/pages/10-test-prep-for-ap-r-courses")
+
+# for key in questionAnswerPairs.keys():
+#     print(key)
+#     print(questionAnswerPairs[key])
+#     # if not questionAnswerPairs[key]:
+#     #     print("\n", key)
+# print(len(questionAnswerPairs))

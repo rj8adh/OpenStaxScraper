@@ -7,7 +7,7 @@ def scrapeWithNewlines(url: str, keepSymbols = False):
     finalAnswers = {}
 
     # Tags with attributes that we want to filter out
-    junkAttributes = [['mrow', {'class':'MJX-TeXAtom-ORD'}, 'Ionic Charges']]
+    junkAttributes = [['mrow', {'class':'MJX-TeXAtom-ORD'}, "Ionic Charges"], ['span', {"data-type":'media'}, "Images In Answers"]]
 
     pageHTML = requests.get(url)
     soup = bs4.BeautifulSoup(pageHTML.text, features="lxml")
@@ -18,9 +18,18 @@ def scrapeWithNewlines(url: str, keepSymbols = False):
     # print(type(questionBoxes))
 
     for box in questionBoxes:
+
+        # Check if any images in question
+        if (box.find('span', attrs={'data-type':'media'})):
+            continue
+
         hasJunk = False
         # Feeding the box html to bs4 so we can parse it(the encoding and decoding is to turn wonky html text to normal text)
-        boxSoup = bs4.BeautifulSoup(box.text.encode('latin1').decode('utf-8'), features="lxml")
+        try:
+            boxSoup = bs4.BeautifulSoup(box.text.encode('latin1').decode('utf-8'), features="lxml")
+        except:
+            # Skip if the box has weird text not for utf-8(charges, subscripts, weird characters, etc.)
+            continue
         # print(type(box))
         answers = box.find_all('div', attrs={'data-type':'answer-content'})
 
@@ -53,7 +62,7 @@ def scrapeWithNewlines(url: str, keepSymbols = False):
 
         # # Filters all empty items and newlines in the list out
         # answerChoiceList = [item.replace("\n", "") for item in answerChoiceList]
-        answerChoiceList = [x for x in answerChoiceList if x]
+        answerChoiceList = [x.strip(" ") for x in answerChoiceList if x.strip(" ")]
 
         # # removing question from answer choices
         question = answerChoiceList.pop(0)
@@ -65,10 +74,12 @@ def scrapeWithNewlines(url: str, keepSymbols = False):
     # print(finalAnswers)
     return finalAnswers
 
-questionAnswerPairs = scrapeWithNewlines("https://openstax.org/books/biology-2e/pages/19-review-questions")
+# Following Code Is For Testing This Function
 
-for key in questionAnswerPairs.keys():
-    print(key)
-    print(questionAnswerPairs[key])
+# questionAnswerPairs = scrapeWithNewlines("https://openstax.org/books/biology-2e/pages/16-review-questions")
+
+# for key in questionAnswerPairs.keys():
+#     print(key)
+#     print(questionAnswerPairs[key])
     # if not questionAnswerPairs[key]:
     #     print("\n", key)
